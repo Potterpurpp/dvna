@@ -49,7 +49,7 @@ module.exports.ping = function (req, res) {
 
 module.exports.listProducts = function (req, res) {
   db.Product.findAll().then((products) => {
-    output = {
+    let output = {
       products: products,
     };
     res.render("app/products", {

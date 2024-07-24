@@ -1,14 +1,14 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var passport = require("passport");
-var session = require("express-session");
-var ejs = require("ejs");
-var morgan = require("morgan");
+const express = require("express");
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const session = require("express-session");
+const ejs = require("ejs");
+const morgan = require("morgan");
 const fileUpload = require("express-fileupload");
-var config = require("./config/server");
+const config = require("./config/server");
 
 //Initialize Express
-var app = express();
+const app = express();
 require("./core/passport")(passport);
 app.use(express.static("public"));
 app.set("view engine", "ejs");
