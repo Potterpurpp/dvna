@@ -1,6 +1,6 @@
 let db = require("../models");
 let bCrypt = require("bcrypt");
-const cp = require("child_process").exec;
+const { execFile } = require("child_process");
 let mathjs = require("mathjs");
 let libxmljs = require("libxmljs");
 let serialize = require("node-serialize");
@@ -39,7 +39,7 @@ module.exports.userSearch = function (req, res) {
 };
 
 module.exports.ping = function (req, res) {
-  cp("ping -c 2 " + req.body.address, function (err, stdout, stderr) {
+  execFile("ping -c 2 " + req.body.address, function (err, stdout, stderr) {
     let output = stdout + stderr;
     res.render("app/ping", {
       output: output,
@@ -245,24 +245,26 @@ module.exports.bulkProductsLegacy = function (req, res) {
 };
 
 module.exports.bulkProducts = function (req, res) {
-	if (req.files.products && req.files.products.mimetype == "text/xml") {
-	  let products = libxmljs.parseXmlString(req.files.products.data.toString("utf8"));
-	  products
-		.root()
-		.childNodes()
-		.forEach((product) => {
-		  let newProduct = new db.Product();
-		  newProduct.name = product.childNodes()[0].text();
-		  newProduct.code = product.childNodes()[1].text();
-		  newProduct.tags = product.childNodes()[2].text();
-		  newProduct.description = product.childNodes()[3].text();
-		  newProduct.save();
-		});
-	  res.redirect("/app/products");
-	} else {
-	  res.render("app/bulkproducts", {
-		messages: { danger: "Invalid file" },
-		legacy: false,
-	  });
-	}
-  };
+  if (req.files.products && req.files.products.mimetype == "text/xml") {
+    let products = libxmljs.parseXmlString(
+      req.files.products.data.toString("utf8")
+    );
+    products
+      .root()
+      .childNodes()
+      .forEach((product) => {
+        let newProduct = new db.Product();
+        newProduct.name = product.childNodes()[0].text();
+        newProduct.code = product.childNodes()[1].text();
+        newProduct.tags = product.childNodes()[2].text();
+        newProduct.description = product.childNodes()[3].text();
+        newProduct.save();
+      });
+    res.redirect("/app/products");
+  } else {
+    res.render("app/bulkproducts", {
+      messages: { danger: "Invalid file" },
+      legacy: false,
+    });
+  }
+};
