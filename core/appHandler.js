@@ -1,6 +1,6 @@
 let db = require("../models");
 let bCrypt = require("bcrypt");
-const exec = require("child_process").exec;
+const cp = require("child_process").exec;
 let mathjs = require("mathjs");
 let libxmljs = require("libxmljs");
 let serialize = require("node-serialize");
@@ -39,7 +39,7 @@ module.exports.userSearch = function (req, res) {
 };
 
 module.exports.ping = function (req, res) {
-  exec("ping -c 2 " + req.body.address, function (err, stdout, stderr) {
+  cp("ping -c 2 " + req.body.address, function (err, stdout, stderr) {
     output = stdout + stderr;
     res.render("app/ping", {
       output: output,
