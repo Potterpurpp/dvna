@@ -1,119 +1,91 @@
-let db = require("../models");
-let LocalStrategy = require("passport-local").Strategy;
-let bCrypt = require("bcrypt");
+const db = require("../models");
+const LocalStrategy = require("passport-local").Strategy;
+const bCrypt = require("bcrypt");
 
 module.exports = function (passport) {
-  passport.serializeUser(function (user, done) {
+  passport.serializeUser((user, done) => {
     done(null, user.id);
   });
 
-  passport.deserializeUser(function (uid, done) {
+  passport.deserializeUser((uid, done) => {
     db.User.findOne({
-      where: {
-        id: uid,
-      },
-    }).then(function (user) {
-      if (user) {
-        done(null, user);
-      } else {
-        done(null, false);
-      }
+      where: { id: uid },
+    }).then((user) => {
+      done(null, user ? user : false);
     });
   });
 
   passport.use(
     "login",
     new LocalStrategy(
-      {
-        passReqToCallback: true,
-      },
-      function (req, username, password, done) {
-        db.User.findOne({
-          where: {
-            login: username,
-          },
-        }).then(function (user) {
-          if (!user) {
-            return done(
-              null,
-              false,
-              req.flash("danger", "Invalid Credentials")
-            );
-          }
-          if (!isValidPassword(user, password)) {
-            return done(
-              null,
-              false,
-              req.flash("danger", "Invalid Credentials")
-            );
-          }
-          return done(null, user);
-        });
+      { passReqToCallback: true },
+      (req, username, password, done) => {
+        handleLogin(req, username, password, done);
       }
     )
   );
-
-  let isValidPassword = function (user, password) {
-    return bCrypt.compareSync(password, user.password);
-  };
 
   passport.use(
     "signup",
     new LocalStrategy(
-      {
-        passReqToCallback: true,
-      },
-      function (req, username, password, done) {
-        let findOrCreateUser = function () {
-          db.User.findOne({
-            where: {
-              email: username,
-            },
-          }).then(function (user) {
-            if (user) {
-              return done(
-                null,
-                false,
-                req.flash("danger", "Account Already Exists")
-              );
-            } else if (
-              req.body.email &&
-              req.body.password &&
-              req.body.username &&
-              req.body.cpassword &&
-              req.body.name
-            ) {
-              if (req.body.cpassword == req.body.password) {
-                db.User.create({
-                  email: req.body.email,
-                  password: createHash(password),
-                  name: req.body.name,
-                  login: username,
-                }).then(function (user) {
-                  return done(null, user);
-                });
-              } else {
-                return done(
-                  null,
-                  false,
-                  req.flash("danger", "Passwords dont match")
-                );
-              }
-            } else {
-              return done(
-                null,
-                false,
-                req.flash("danger", "Input field(s) missing")
-              );
-            }
-          });
-        };
-        process.nextTick(findOrCreateUser);
+      { passReqToCallback: true },
+      (req, username, password, done) => {
+        process.nextTick(() => handleSignup(req, username, password, done));
       }
     )
   );
+};
 
-  let createHash = function (password) {
-    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
-  };
+const isValidPassword = (user, password) => {
+  return bCrypt.compareSync(password, user.password);
+};
+
+const createHash = (password) => {
+  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+};
+
+const handleLogin = (req, username, password, done) => {
+  db.User.findOne({
+    where: { login: username },
+  }).then((user) => {
+    if (!user || !isValidPassword(user, password)) {
+      return done(null, false, req.flash("danger", "Invalid Credentials"));
+    }
+    return done(null, user);
+  });
+};
+
+const handleSignup = (req, username, password, done) => {
+  db.User.findOne({
+    where: { email: username },
+  }).then((user) => {
+    if (user) {
+      return done(null, false, req.flash("danger", "Account Already Exists"));
+    } else if (
+      req.body.email &&
+      req.body.password &&
+      req.body.username &&
+      req.body.cpassword &&
+      req.body.name
+    ) {
+      if (req.body.cpassword === req.body.password) {
+        createUser(req, username, password, done);
+      } else {
+        return done(null, false, req.flash("danger", "Passwords don't match"));
+      }
+    } else {
+      return done(null, false, req.flash("danger", "Input field(s) missing"));
+    }
+  });
+};
+
+const createUser = (req, username, password, done) => {
+  db.User.create({
+    email: req.body.email,
+    password: createHash(password),
+    name: req.body.name,
+    login: username,
+  }).then((user) => {
+    return done(null, user);
+  });
 };
