@@ -10,10 +10,10 @@ module.exports = function (passport) {
   passport.deserializeUser((uid, done) => {
     db.User.findOne({
       where: { id: uid },
-    }).then((user) => {
-      done(null, user ? user : false);
-    });
-  });
+    }).then((user) => 
+        done(null, user || false))
+    })
+  };
 
   passport.use(
     "login",
