@@ -128,7 +128,7 @@ module.exports.modifyProductSubmit = function (req, res) {
         }
       })
       .catch((err) => {
-        output = {
+        let output = {
           product: product,
         };
         req.flash("danger", err);
