@@ -76,37 +76,35 @@ module.exports = function (passport) {
                 false,
                 req.flash("danger", "Account Already Exists")
               );
-            } else {
-              if (
-                req.body.email &&
-                req.body.password &&
-                req.body.username &&
-                req.body.cpassword &&
-                req.body.name
-              ) {
-                if (req.body.cpassword == req.body.password) {
-                  db.User.create({
-                    email: req.body.email,
-                    password: createHash(password),
-                    name: req.body.name,
-                    login: username,
-                  }).then(function (user) {
-                    return done(null, user);
-                  });
-                } else {
-                  return done(
-                    null,
-                    false,
-                    req.flash("danger", "Passwords dont match")
-                  );
-                }
+            } else if (
+              req.body.email &&
+              req.body.password &&
+              req.body.username &&
+              req.body.cpassword &&
+              req.body.name
+            ) {
+              if (req.body.cpassword == req.body.password) {
+                db.User.create({
+                  email: req.body.email,
+                  password: createHash(password),
+                  name: req.body.name,
+                  login: username,
+                }).then(function (user) {
+                  return done(null, user);
+                });
               } else {
                 return done(
                   null,
                   false,
-                  req.flash("danger", "Input field(s) missing")
+                  req.flash("danger", "Passwords dont match")
                 );
               }
+            } else {
+              return done(
+                null,
+                false,
+                req.flash("danger", "Input field(s) missing")
+              );
             }
           });
         };

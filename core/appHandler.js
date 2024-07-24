@@ -66,7 +66,7 @@ module.exports.productSearch = function (req, res) {
       },
     },
   }).then((products) => {
-    output = {
+    let output = {
       products: products,
       searchTerm: req.body.name,
     };
@@ -78,7 +78,7 @@ module.exports.productSearch = function (req, res) {
 
 module.exports.modifyProduct = function (req, res) {
   if (!req.query.id || req.query.id == "") {
-    output = {
+    let output = {
       product: {},
     };
     res.render("app/modifyproduct", {
