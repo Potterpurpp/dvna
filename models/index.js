@@ -13,7 +13,7 @@ sequelize
   });
 
 sequelize
-  .sync(/*{ force: true }*/) // Force To re-initialize tables on each run
+  .sync({ force: true }) // Force To re-initialize tables on each run
   .then(
     function (err) {
       console.log("It worked!");

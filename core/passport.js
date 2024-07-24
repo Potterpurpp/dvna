@@ -64,7 +64,7 @@ module.exports = function (passport) {
         passReqToCallback: true,
       },
       function (req, username, password, done) {
-        findOrCreateUser = function () {
+        let findOrCreateUser = function () {
           db.User.findOne({
             where: {
               email: username,

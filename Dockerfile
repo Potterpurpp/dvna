@@ -8,6 +8,6 @@ WORKDIR /app
 COPY . .
 
 RUN chmod +x /app/entrypoint.sh \
-	&& npm install
+	&& npm install --ignore-scripts
 
 CMD ["bash", "/app/entrypoint.sh"]

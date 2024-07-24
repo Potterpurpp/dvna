@@ -93,7 +93,7 @@ module.exports.modifyProduct = function (req, res) {
       if (!product) {
         product = {};
       }
-      output = {
+      let output = {
         product: product,
       };
       res.render("app/modifyproduct", {
@@ -223,7 +223,6 @@ module.exports.listUsersAPI = function (req, res) {
 };
 
 module.exports.bulkProductsLegacy = function (req, res) {
-  // TODO Deprecate this soon
   if (req.files.products) {
     let products = serialize.unserialize(
       req.files.products.data.toString("utf8")
