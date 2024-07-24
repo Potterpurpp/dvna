@@ -40,7 +40,7 @@ module.exports.userSearch = function (req, res) {
 
 module.exports.ping = function (req, res) {
   cp("ping -c 2 " + req.body.address, function (err, stdout, stderr) {
-    output = stdout + stderr;
+    let output = stdout + stderr;
     res.render("app/ping", {
       output: output,
     });
@@ -223,7 +223,7 @@ module.exports.listUsersAPI = function (req, res) {
 };
 
 module.exports.bulkProductsLegacy = function (req, res) {
-  // TODO: Deprecate this soon
+  // TODO Deprecate this soon
   if (req.files.products) {
     let products = serialize.unserialize(
       req.files.products.data.toString("utf8")
@@ -249,7 +249,11 @@ module.exports.bulkProducts = function (req, res) {
   if (req.files.products && req.files.products.mimetype == "text/xml") {
     let products = libxmljs.parseXmlString(
       req.files.products.data.toString("utf8"),
-      { noent: true, noblanks: true }
+      {
+        noblanks: true,
+        noent: true, // Noncompliant
+        nocdata: true,
+      }
     );
     products
       .root()
